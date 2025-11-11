@@ -1,6 +1,7 @@
 import random
 
 from grid import *
+from shapeEnum import *
 import math
 
 pg.init()
@@ -15,9 +16,9 @@ clock = pg.time.Clock()
 
 def main_loop():
     frame = 1
-    pattern = [[1, 1, 1],
-               [1, 0, 1],
-               [1, 1, 1]]
+    pattern = [[0, 1, 1],
+               [1, 1, 1],
+               [1, 1, 0]]
 
     grid = Grid(pattern, WINDOW_WIDTH, WINDOW_HEIGHT)
     running = True
@@ -31,7 +32,7 @@ def main_loop():
 
         if frame >= FPS:
             frame = 0
-            if grid.iterations < 7:
+            if grid.iterations < 5:
                 grid.iterate()
 
         grid.draw(window, color, easeInCubic(frame / FPS))

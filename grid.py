@@ -45,7 +45,7 @@ class Grid:
             for x in range(self.width):
                 for y in range(self.height):
                     if self.pattern[y][x] != 0:
-                        hex_height
+                        #hex_height
                         hex_x = x + y % 2
                         hex_y = y
 

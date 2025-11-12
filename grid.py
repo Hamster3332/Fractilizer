@@ -38,16 +38,37 @@ class Grid:
             self.prev_rects = self.retangles
 
         elif shape == Shape.hexagon:
-            self.hex_height: float = gridPHeight / (self.height + 1)
-            self.hex_width: float = 2 * math.sqrt(math.pow(self.hex_height / 2, 2) + pow(math.tan(math.radians(30)) / self.hex_height * 2, 2))
-            self.hexagons = [] # A list of positions and height / short diameter [(x, y, height), ...]
+            if self.width / self.height != gridPWidth / gridPHeight:
+                raise ValueError("Wrong Aspect ratio of the window for that pattern!")
+
+            self.precalc_points = []
+            for degree_i in range(6):  # 6 because hexagon, for each point
+                self.precalc_points.append((math.cos(degree_i / 6 * math.pi * 2),
+                               math.sin(degree_i / 6 * math.pi * 2)))
+            #print(self.precalc_points)
+            self.hex_ratio2 = math.tan(math.radians(30)) # multiply by self.hex_height / 2
+
+
+            self.hex_height: float = gridPHeight / (self.height + 0.5) # The shortest straight line passing through the center
+            self.hex_width: float = 2 * math.sqrt(math.pow(self.hex_height / 2, 2) + pow(math.tan(math.radians(30)) * (self.hex_height / 2), 2))
+            self.hex_ratio: float = self.hex_width / self.hex_height
+            self.hexagons = [] # A list of positions and the points [(center_x, center_y, [(x, y), (x, y), ...]), ...]
+            self.hex_margin: float = 3
 
             for x in range(self.width):
                 for y in range(self.height):
                     if self.pattern[y][x] != 0:
-                        #hex_height
-                        hex_x = x + y % 2
-                        hex_y = y
+                        hex_y = self.hex_height / 2 + y * self.hex_height
+                        if x % 2 != 0:
+                            hex_y += self.hex_height / 2
+                        hex_x = self.hex_width / 2 + x * (self.hex_width - self.hex_ratio2 * self.hex_height / 2)
+
+                        points = []
+                        for degree_i in range(6):  # 6 because hexagon, for each point
+                            points.append((round(self.precalc_points[degree_i][0] * (self.hex_width / 2 - self.hex_margin) + hex_x),
+                                           round(self.precalc_points[degree_i][1] * (self.hex_width / 2 - self.hex_margin) + hex_y)))
+
+                        self.hexagons.append((hex_x, hex_y, points))
 
     def iterate(self):
         if self.shape == Shape.rectangle:
@@ -80,17 +101,17 @@ class Grid:
             print("length anim_rects: " + str(len(self.anim_rects)))
             """
 
-    def draw_hexagon(self, window: pg.Surface, color: pg.Color, small_diameter: float):
-        pg.draw.polygon(window, color, [
-
-        ])
-
     def draw(self, window: pg.Surface, color: pg.Color, lerp_val: float):
 
-        if lerp_val >= 1.0 or self.iterations > 3:
+        if lerp_val >= 1.0 or self.iterations > 3 or True:
             if self.shape == Shape.rectangle:
                 for r in self.retangles:
                     pg.draw.rect(window, color, r)
+
+            elif self.shape == Shape.hexagon:
+                for h in self.hexagons:
+                    pg.draw.polygon(window, color, h[2])
+
         else:
             if self.shape == Shape.rectangle:
                 for i in range(len(self.anim_rects)):

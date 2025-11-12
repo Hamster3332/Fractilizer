@@ -6,7 +6,7 @@ import math
 
 pg.init()
 
-WINDOW_WIDTH = 1000
+WINDOW_WIDTH = 1200
 WINDOW_HEIGHT = 1200
 FPS = 180
 
